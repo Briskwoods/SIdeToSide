@@ -275,7 +275,7 @@ public class GameManager : MonoBehaviour
                         m_charactersToMerge[1].gameObject.GetComponent<Animator>().SetBool("isMoving", true);
                         m_charactersToMerge[1].gameObject.transform.LookAt(m_playerSide[0].transform);
                         yield return new WaitForSeconds(1f);
-                        m_charactersToMerge[1].gameObject.GetComponent<Rigidbody>().MoveRotation(Quaternion.Lerp(Quaternion.Euler(m_charactersToMerge[1].transform.eulerAngles), Quaternion.Euler(0, 180, 0), 1));
+                        m_charactersToMerge[1].gameObject.GetComponent<Rigidbody>().MoveRotation(Quaternion.Lerp(Quaternion.Euler(m_charactersToMerge[1].transform.eulerAngles), Quaternion.Euler(0, 0, 0), 1));
                         m_charactersToMerge[1].gameObject.GetComponent<Animator>().SetBool("isMoving", false);
                         break;
                     case false:
