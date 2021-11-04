@@ -28,7 +28,7 @@ public class CharacterDetector : MonoBehaviour
                 m_matched = other.gameObject.GetComponent<BoardCharacterController>();
                 m_detectedMesh = other.gameObject.GetComponentInChildren<SkinnedMeshRenderer>();
 
-                switch (m_myMesh.materials[1].name == m_detectedMesh.materials[1].name)
+                switch (m_myMesh.materials[0].name == m_detectedMesh.materials[0].name)
                 {
                     case true:
                         m_gameManager.isMatched = true;

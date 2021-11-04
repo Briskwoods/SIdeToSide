@@ -23,18 +23,28 @@ public class BoardCharacterController : MonoBehaviour
 
     [SerializeField] private GameManager m_gameManager;
 
+    [SerializeField] private GameObject m_PredictionTiles;
+
+    [SerializeField] private RayCastDirectionManager m_raycastManager;
 
     [SerializeField] private bool playerTurn;
     [SerializeField] private bool enemyTurn;
 
 
     public int m_timesMoved = 0;
+    public int m_runTrigger = 0;
 
-    [SerializeField] private float m_speed = 10f;
-    [SerializeField] private float m_horizontalMoveDistance = 1.15f;
-    [SerializeField] private float m_verticalMoveDistance = 1.5f;
+    //[SerializeField] private float m_horizontalSpeed = 45f;
+    [SerializeField] private float m_speed = 5f;
+    //[SerializeField] private float m_horizontalMoveDistance = 1.15f;
+    //[SerializeField] private float m_verticalMoveDistance = 1.5f;
     [SerializeField] private float m_moveTime = 5f;
     [SerializeField] private float m_originalMoveTime;
+
+    public Transform m_up;
+    public Transform m_down;
+    public Transform m_left;
+    public Transform m_right;
 
     public bool isSelected =  false;
     public bool isMatched =  false;
@@ -60,7 +70,10 @@ public class BoardCharacterController : MonoBehaviour
         m_self = this.GetComponent<Rigidbody>();
         m_selfAnim = this.GetComponent<Animator>();
         m_gameManager = FindObjectOfType<GameManager>();
+        m_PredictionTiles = GetComponentInChildren<EnablePredictionTiles>().gameObject;
         m_originalMoveTime = m_moveTime;
+        m_PredictionTiles.SetActive(true);
+        m_raycastManager = this.gameObject.GetComponent<RayCastDirectionManager>();
     }
 
     // Update is called once per frame
@@ -73,17 +86,20 @@ public class BoardCharacterController : MonoBehaviour
         {
             case true:
                 GetComponentInChildren<Outline>().enabled = true;
-
+                m_PredictionTiles.SetActive(true);
                 break;
             case false:
                 GetComponentInChildren<Outline>().enabled = false;
+                m_PredictionTiles.SetActive(false);
                 break;
         }
 
         switch (m_moveLeft && b_canMoveLeft)
         {
             case true:
-                m_self.MovePosition(transform.position + new Vector3(-m_horizontalMoveDistance, 0, 0) * m_speed * Time.deltaTime);
+                //m_self.MovePosition(transform.position + new Vector3(-m_horizontalMoveDistance, 0, 0) * m_horizontalSpeed * Time.deltaTime);
+                //m_self.MovePosition(m_left.position);
+                m_self.MovePosition(Vector3.Lerp(m_self.transform.position, m_left.position + new Vector3(0, 15, 0), m_speed * Time.deltaTime));
                 m_self.MoveRotation(Quaternion.Euler(0,270,0));
                 break;
             case false:
@@ -93,7 +109,9 @@ public class BoardCharacterController : MonoBehaviour
         switch (m_moveRight && b_canMoveRight)
         {
             case true:
-                m_self.MovePosition(transform.position + new Vector3(m_horizontalMoveDistance, 0, 0) * m_speed * Time.deltaTime);
+                //m_self.MovePosition(transform.position + new Vector3(m_horizontalMoveDistance, 0, 0) * m_horizontalSpeed * Time.deltaTime);
+                //m_self.MovePosition(m_right.position);
+                m_self.MovePosition(Vector3.Lerp(m_self.transform.position, m_right.position + new Vector3(0, 15, 0), m_speed * Time.deltaTime));
                 m_self.MoveRotation(Quaternion.Euler(0,90,0));
                 break;
             case false:
@@ -103,7 +121,8 @@ public class BoardCharacterController : MonoBehaviour
         switch (m_moveUp && b_canMoveUp)
         {
             case true:
-                m_self.MovePosition(transform.position + new Vector3(0, 0, m_verticalMoveDistance) * m_speed * Time.deltaTime);
+                //m_self.MovePosition(transform.position + new Vector3(0, 0, m_verticalMoveDistance) * m_verticalSpeed * Time.deltaTime);
+                m_self.MovePosition(Vector3.Lerp(m_self.transform.position, m_up.position + new Vector3(0, 15, 0), m_speed * Time.deltaTime));
                 m_self.MoveRotation(Quaternion.Euler(0,0,0));
                 break;
             case false:
@@ -113,7 +132,9 @@ public class BoardCharacterController : MonoBehaviour
         switch (m_moveDown && b_canMoveDown)
         {
             case true:
-                m_self.MovePosition(transform.position + new Vector3(0, 0, -m_verticalMoveDistance) * m_speed * Time.deltaTime);
+                //m_self.MovePosition(transform.position + new Vector3(0, 0, -m_verticalMoveDistance) * m_verticalSpeed * Time.deltaTime);
+                //m_self.MovePosition(m_down.position);
+                m_self.MovePosition(Vector3.Lerp(m_self.transform.position, m_down.position + new Vector3(0,15,0), m_speed * Time.deltaTime));
                 m_self.MoveRotation(Quaternion.Euler(0,180,0));
                 break;
             case false:
@@ -156,6 +177,11 @@ public class BoardCharacterController : MonoBehaviour
             case true:                 
                 m_moveTime -= Time.deltaTime;
                 m_selfAnim.SetBool("isMoving", isMoving);
+                
+                m_raycastManager.m_upDetectCount = 0;
+                m_raycastManager.m_downDetectCount = 0;
+                m_raycastManager.m_leftDetectCount = 0;
+                m_raycastManager.m_rightDetectCount = 0;
                 break;
             case false:
                 m_moveTime = m_originalMoveTime;

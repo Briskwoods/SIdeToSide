@@ -18,8 +18,7 @@ public class HandController : MonoBehaviour
 
     [SerializeField] private BoardCharacterController m_selectedCharacter;
 
-
-    [SerializeField] private LayerMask m_charcaterMask;
+    public LayerMask Layer_;
 
     private Vector3 m_originalPosition;
 
@@ -89,9 +88,10 @@ public class HandController : MonoBehaviour
                         m_startTouch = Input.mousePosition;
 
                         //We cast a ray to detect if a character is hit, character is then stored in selectedCharacter Variable. This can be used to control active and inactive state of characters
-                        RaycastHit hitInfo = new RaycastHit();
-                        bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo, m_charcaterMask);
-                        
+                        RaycastHit hitInfo;
+                        Ray ray_ = Camera.main.ScreenPointToRay(Input.mousePosition);
+                        bool hit = (Physics.Raycast(ray_, out hitInfo, Mathf.Infinity, Layer_));
+
                         switch (hit)
                         {
                             case true:
