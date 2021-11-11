@@ -32,7 +32,7 @@ public class HandController : MonoBehaviour
     private bool m_swipeRight;
     private bool m_swipeUp;
     private bool m_swipeDown;
-    private bool m_isDragging;
+    [SerializeField] private bool m_isDragging;
 
     [SerializeField] private bool firstClick = false;
     [SerializeField] private bool secondClick = false;
