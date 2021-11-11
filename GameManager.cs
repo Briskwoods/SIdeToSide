@@ -27,6 +27,8 @@ public class GameManager : MonoBehaviour
     public List<Transform> m_playerSide;
     public List<Transform> m_enemySide;
 
+    public GameObject m_smokeEffect;
+
 
     public bool merge = false;
 
@@ -263,8 +265,9 @@ public class GameManager : MonoBehaviour
                 m_charactersToMerge[0].gameObject.GetComponent<Animator>().SetBool("isMoving", true);
                 m_charactersToMerge[1].gameObject.GetComponent<Rigidbody>().MovePosition(Vector3.Lerp(m_matchedBoardCharacters[1].transform.position, m_matchedBoardCharacters[0].transform.position, 3 * Time.deltaTime));
                 m_charactersToMerge[0].gameObject.GetComponent<Rigidbody>().MovePosition(Vector3.Lerp(m_matchedBoardCharacters[0].transform.position, m_matchedBoardCharacters[1].transform.position, 3 * Time.deltaTime));
+                yield return new WaitForSeconds(0.05f);
+                Instantiate(m_smokeEffect, m_charactersToMerge[1].transform);
                 yield return new WaitForSeconds(0.5f);
-
                 m_charactersToMerge[1].gameObject.GetComponent<Animator>().SetBool("isMoving", false);
                 m_charactersToMerge[0].gameObject.GetComponent<Animator>().SetBool("isMoving", false);
                 m_charactersToMerge[0].gameObject.SetActive(false);
