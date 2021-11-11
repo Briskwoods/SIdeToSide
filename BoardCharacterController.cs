@@ -30,6 +30,7 @@ public class BoardCharacterController : MonoBehaviour
     [SerializeField] private bool playerTurn;
     [SerializeField] private bool enemyTurn;
 
+    [SerializeField] private Color m_outlineColour;
 
     public int m_timesMoved = 0;
     public int m_runTrigger = 0;
@@ -82,7 +83,7 @@ public class BoardCharacterController : MonoBehaviour
         playerTurn = m_gameManager.m_playerTurn;
         enemyTurn = m_gameManager.m_enemyTurn;
 
-        switch (isSelected)
+        switch (isSelected && !isMoving)
         {
             case true:
                 GetComponentInChildren<Outline>().enabled = true;
