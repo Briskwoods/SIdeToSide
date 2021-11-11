@@ -105,6 +105,33 @@ public class GameManager : MonoBehaviour
                         break;
                     case false: break;
                 }
+
+                // Hand Animations 
+
+                switch (wasPlayerTurn)
+                {
+                    case true:
+                        //Do Player success animation, use SetTrigger
+
+                        // Do enemy frustration Animation, use SetTrigger
+                        break;
+                    case false:
+                        break;
+                }
+
+                switch (wasEnemyTurn)
+                {
+                    case true:
+                        //Do enemy success animation, use SetTrigger
+
+                        // Do Player frustration Animation, use SetTrigger
+
+                        /* Can also be used in the false case of the wasPlayerTurn check but this is for control variable */
+                        break;
+                    case false:
+                        break;
+                }
+
                 break;
             case false: break;
         }
@@ -227,6 +254,7 @@ public class GameManager : MonoBehaviour
                     {
                         timer += Time.deltaTime;
                         m_matchedBoardCharacters[1].transform.localScale += new Vector3(1, 1, 1) * Time.deltaTime * growFactor;
+                        Instantiate(m_smokeEffect, m_charactersToMerge[1].transform);
 
                         yield return null;
                     }
@@ -265,8 +293,7 @@ public class GameManager : MonoBehaviour
                 m_charactersToMerge[0].gameObject.GetComponent<Animator>().SetBool("isMoving", true);
                 m_charactersToMerge[1].gameObject.GetComponent<Rigidbody>().MovePosition(Vector3.Lerp(m_matchedBoardCharacters[1].transform.position, m_matchedBoardCharacters[0].transform.position, 3 * Time.deltaTime));
                 m_charactersToMerge[0].gameObject.GetComponent<Rigidbody>().MovePosition(Vector3.Lerp(m_matchedBoardCharacters[0].transform.position, m_matchedBoardCharacters[1].transform.position, 3 * Time.deltaTime));
-                yield return new WaitForSeconds(0.05f);
-                Instantiate(m_smokeEffect, m_charactersToMerge[1].transform);
+                //yield return new WaitForSeconds(0.03f);
                 yield return new WaitForSeconds(0.5f);
                 m_charactersToMerge[1].gameObject.GetComponent<Animator>().SetBool("isMoving", false);
                 m_charactersToMerge[0].gameObject.GetComponent<Animator>().SetBool("isMoving", false);
