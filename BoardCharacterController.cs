@@ -49,7 +49,6 @@ public class BoardCharacterController : MonoBehaviour
 
     public bool isSelected =  false;
     public bool isMatched =  false;
-    [SerializeField] private bool canBeSelected = false;
 
     public bool m_moveUp = false;
     public bool m_moveDown = false;
@@ -153,6 +152,7 @@ public class BoardCharacterController : MonoBehaviour
                         m_gameManager.m_playerTurn = false;
                         m_gameManager.isSwitching = true;
                         m_timesMoved = 0;
+                        m_gameManager.smokeCounter = 0;
                         isSelected = false;
                         break;
                     case false:
@@ -161,6 +161,7 @@ public class BoardCharacterController : MonoBehaviour
                         m_gameManager.m_playerTurn = true;
                         m_gameManager.isSwitching = true;
                         m_timesMoved = 0;
+                        m_gameManager.smokeCounter = 0;
                         isSelected = false;
                         break;
                 }
