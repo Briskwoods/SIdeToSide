@@ -18,6 +18,12 @@ public class HandController : MonoBehaviour
 
     [SerializeField] private BoardCharacterController m_selectedCharacter;
 
+    [SerializeField] private SkinnedMeshRenderer m_selectedMesh;
+
+    [SerializeField] private SkinnedMeshRenderer m_ragdollMesh;
+
+    //[SerializeField] private GameManager m_gameManager;
+
     public LayerMask Layer_;
 
     private Vector3 m_originalPosition;
@@ -32,7 +38,8 @@ public class HandController : MonoBehaviour
     private bool m_swipeRight;
     private bool m_swipeUp;
     private bool m_swipeDown;
-    [SerializeField] private bool m_isDragging;
+
+    public bool m_isDragging;
 
     [SerializeField] private bool firstClick = false;
     [SerializeField] private bool secondClick = false;
@@ -52,6 +59,7 @@ public class HandController : MonoBehaviour
         m_originalPosition = transform.position;
         m_handAnimator = this.GetComponent<Animator>();
         m_rightHand.transform.position = m_originalPosition;
+        
     }
 
     // Update is called once per frame
@@ -117,6 +125,8 @@ public class HandController : MonoBehaviour
                                     case true:
                                         m_selectedCharacter.isSelected = false;
                                         m_selectedCharacter = hitInfo.transform.gameObject.GetComponentInChildren<BoardCharacterController>();
+                                        m_selectedMesh = hitInfo.transform.gameObject.GetComponentInChildren<SkinnedMeshRenderer>();
+                                        m_ragdollMesh.material = m_selectedMesh.material;
                                         m_selectedCharacter.isSelected = true;
                                         firstClick = true;
                                         secondClick = false;
@@ -130,6 +140,8 @@ public class HandController : MonoBehaviour
                                     case true:
                                         hitInfo.transform.gameObject.GetComponentInChildren<BoardCharacterController>().isSelected = true;
                                         m_selectedCharacter = hitInfo.transform.gameObject.GetComponentInChildren<BoardCharacterController>();
+                                        m_selectedMesh = hitInfo.transform.gameObject.GetComponentInChildren<SkinnedMeshRenderer>();
+                                        m_ragdollMesh.material = m_selectedMesh.material;
                                         m_selectedCharacter.m_timesClickedOn = 1;
                                         m_hasSelectedCharacter = true;
                                         firstClick = true;
@@ -164,6 +176,17 @@ public class HandController : MonoBehaviour
                 switch (m_isDragging)
                 {
                     case true:
+
+                        switch (m_isActive)
+                        {
+                            case true:
+                                m_ragdollMesh.enabled = true;
+                                break;
+                            case false:
+                                m_ragdollMesh.enabled = false;
+                                break;
+                        }
+
                         switch (Input.touches.Length > 0)
                         {
                             case true:
@@ -182,10 +205,46 @@ public class HandController : MonoBehaviour
                         }
                         break;
                     case false:
+                        m_ragdollMesh.enabled = false;
+
+                        //m_selectedCharacter.m_timesMoved = 1;
                         break;
                 }
 
-                switch (m_swipeDelta.magnitude > 125)
+
+                if (Input.GetKeyDown(KeyCode.DownArrow)) 
+                {
+                    m_swipeDown = true;
+                    m_selectedCharacter.m_moveDown = m_swipeDown;
+                    m_selectedCharacter.isMoving = true;
+                    StartCoroutine(ExecuteAfterTime(1));
+                }
+
+                if (Input.GetKeyDown(KeyCode.UpArrow))
+                {
+                    m_swipeUp = true;
+                    m_selectedCharacter.m_moveUp = m_swipeUp;
+                    m_selectedCharacter.isMoving = true;
+                    StartCoroutine(ExecuteAfterTime(1));
+                }
+
+                if (Input.GetKeyDown(KeyCode.LeftArrow))
+                {
+                    m_swipeLeft = true;
+                    m_selectedCharacter.m_moveLeft = m_swipeLeft;
+                    m_selectedCharacter.isMoving = true; 
+                    StartCoroutine(ExecuteAfterTime(1));
+                }
+
+                if (Input.GetKeyDown(KeyCode.RightArrow))
+                {
+                    m_swipeRight = true;
+                    m_selectedCharacter.m_moveRight = m_swipeRight;
+                    m_selectedCharacter.isMoving = true;
+                    StartCoroutine(ExecuteAfterTime(1));
+                }
+
+                switch (m_swipeDelta.magnitude > 1000000)
                 {
                     //Detect direction
                     case true:
@@ -198,10 +257,17 @@ public class HandController : MonoBehaviour
                                 switch (x > 0 && direction > -0.375f && direction < 0.375f)
                                 {
                                     case true:
-                                        m_swipeRight = true;
-                                        m_selectedCharacter.m_moveRight = m_swipeRight;
-                                        m_selectedCharacter.isMoving = true;
-                                        m_selectedCharacter.m_timesMoved = 1;
+                                        //m_swipeRight = true;
+                                        //m_selectedCharacter.m_moveRight = m_swipeRight;
+                                        //m_selectedCharacter.isMoving = true;
+                                        switch(m_isDragging)
+                                        {
+                                            case true:
+                                                //m_selectedCharacter.m_timesMoved = 1;
+                                                break;
+                                            case false:
+                                                break;
+                                        }
                                         break;
                                     case false:
                                         break;
@@ -211,10 +277,17 @@ public class HandController : MonoBehaviour
                                 switch (x < 0 && direction < -0.875f || direction > 0.875f)
                                 {
                                     case true:
-                                        m_swipeLeft = true;
-                                        m_selectedCharacter.m_moveLeft = m_swipeLeft;
-                                        m_selectedCharacter.isMoving = true;
-                                        m_selectedCharacter.m_timesMoved = 1;
+                                        //m_swipeLeft = true;
+                                        //m_selectedCharacter.m_moveLeft = m_swipeLeft;
+                                        //m_selectedCharacter.isMoving = true;
+                                        switch (m_isDragging)
+                                        {
+                                            case true:
+                                                //m_selectedCharacter.m_timesMoved = 1;
+                                                break;
+                                            case false:
+                                                break;
+                                        }
                                         break;
                                     case false:
                                         break;
@@ -225,10 +298,17 @@ public class HandController : MonoBehaviour
                                 switch (y > 0 && direction > 0.375f && direction < 0.625f)
                                 {
                                     case true:
-                                        m_swipeUp = true;
-                                        m_selectedCharacter.m_moveUp = m_swipeUp;
-                                        m_selectedCharacter.isMoving = true;
-                                        m_selectedCharacter.m_timesMoved = 1;
+                                        //m_swipeUp = true;
+                                        //m_selectedCharacter.m_moveUp = m_swipeUp;
+                                        //m_selectedCharacter.isMoving = true;
+                                        switch (m_isDragging)
+                                        {
+                                            case true:
+                                                //m_selectedCharacter.m_timesMoved = 1;
+                                                break;
+                                            case false:
+                                                break;
+                                        }
                                         break;
                                     case false:
                                         break;
@@ -238,10 +318,17 @@ public class HandController : MonoBehaviour
                                 switch (y < 0 && direction < -0.375f && direction > -0.625f)
                                 {
                                     case true:
-                                        m_swipeDown = true;
-                                        m_selectedCharacter.m_moveDown = m_swipeDown;
-                                        m_selectedCharacter.isMoving = true;
-                                        m_selectedCharacter.m_timesMoved = 1;
+                                        //m_swipeDown = true;
+                                        //m_selectedCharacter.m_moveDown = m_swipeDown;
+                                        //m_selectedCharacter.isMoving = true;
+                                        switch (m_isDragging)
+                                        {
+                                            case true:
+                                                //m_selectedCharacter.m_timesMoved = 1;
+                                                break;
+                                            case false:
+                                                break;
+                                        }
                                         break;
                                     case false:
                                         break;
@@ -255,10 +342,47 @@ public class HandController : MonoBehaviour
                 }
                 break;
             case false:
+                //m_selectedMesh.enabled = false;
                 m_handAnimator.SetBool("isActive", false);
                 m_rightHand.transform.position = Vector3.MoveTowards(this.transform.position, m_originalPosition, m_handReturnSpeed);
                 break;
         }
+
+        switch (m_selectedCharacter != null)
+        {
+            case true:
+                switch (m_hasSelectedCharacter && m_isDragging)
+                {
+                    case true:
+                        //Hide selected Character on select and hold
+                        m_selectedMesh.enabled = false;
+                        switch (m_selectedCharacter.isMoving)
+                        {
+                            case true:
+                                m_selectedMesh.enabled = false;
+                                break;
+                            case false:
+                                break;
+                        }
+                        break;
+                    case false:
+                        // Show Selected Mesh when not moving
+                        switch (m_selectedCharacter.isMoving)
+                        {
+                            case true:
+                                m_selectedMesh.enabled = false;
+                                break;
+                            case false:
+                                m_selectedMesh.enabled = true;
+                                break;
+                        }
+                        break;
+                }
+                break;
+            case false:
+                break;
+        }
+        
         
     }
 
@@ -266,5 +390,12 @@ public class HandController : MonoBehaviour
     {
         m_startTouch = m_swipeDelta = Vector2.zero;
         m_isDragging = false;
+    }
+    
+    IEnumerator ExecuteAfterTime(float seconds)
+    {
+        m_selectedCharacter.m_timesMoved = 0;
+        yield return new WaitForSeconds(seconds);
+        m_selectedCharacter.m_timesMoved = 1;
     }
 }
