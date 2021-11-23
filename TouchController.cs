@@ -6,8 +6,6 @@ public class TouchController : MonoBehaviour
 {
     [SerializeField] private Transform m_player;
 
-    [SerializeField] private float m_moveSpeed = 3f;
-
     [SerializeField] private Animator m_playerAnimator;
 
     [SerializeField] private Rigidbody m_rigidbody;
