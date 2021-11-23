@@ -20,15 +20,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float m_moveTime = 1f;
     [SerializeField] private float m_originalMoveTime;
     [SerializeField] private float m_matchedTime = 5f;
-    [SerializeField] private float m_mergeTime = 1f;
+
+    public GameObject m_smokeEffect;
 
     public List<BoardCharacterController> m_matchedBoardCharacters;
     public List<BoardCharacterController> m_charactersToMerge;
     public List<Transform> m_playerSide;
     public List<Transform> m_enemySide;
-
-    public GameObject m_smokeEffect;
-
 
     public bool merge = false;
 
@@ -36,6 +34,7 @@ public class GameManager : MonoBehaviour
     public float growFactor;
     public float waitTime;
 
+    public int smokeCounter = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -136,7 +135,7 @@ public class GameManager : MonoBehaviour
             case false: break;
         }
 
-        switch(m_matchedBoardCharacters.Count != 0)
+        switch(m_matchedBoardCharacters.Count != 0 /*&& !merge*/)
         {
             case true:
                 switch (wasPlayerTurn)
@@ -216,8 +215,8 @@ public class GameManager : MonoBehaviour
         switch (merge)
         {
             case true:
-                switch (m_charactersToMerge.Count != 0 && !m_charactersToMerge[0].isMoving && !m_charactersToMerge[1].isMoving)
-                {
+                switch ((m_charactersToMerge.Count != 0 && !m_charactersToMerge[0].isMoving && !m_charactersToMerge[1].isMoving && !m_playerHand.m_isDragging && !Input.GetMouseButton(0))||(m_charactersToMerge.Count != 0 && !m_charactersToMerge[0].isMoving && !m_charactersToMerge[1].isMoving && !Input.GetMouseButton(0)))
+                { 
                     case true:
                         Merge();
                         break;
@@ -234,8 +233,7 @@ public class GameManager : MonoBehaviour
 
     public void Merge()
     {
-        StartCoroutine(MergeCoroutine());
-        
+        StartCoroutine(ExecuteAfterTime(0.5f));        
     }
 
     IEnumerator Scale()
@@ -254,7 +252,16 @@ public class GameManager : MonoBehaviour
                     {
                         timer += Time.deltaTime;
                         m_matchedBoardCharacters[1].transform.localScale += new Vector3(1, 1, 1) * Time.deltaTime * growFactor;
-                        Instantiate(m_smokeEffect, m_charactersToMerge[1].transform);
+                        switch (smokeCounter == 0)
+                        {
+                            case true:
+                                Instantiate(m_smokeEffect, m_charactersToMerge[1].transform);
+                                smokeCounter++;
+                                break;
+                            case false:
+                                break;
+                        }
+
 
                         yield return null;
                     }
@@ -291,8 +298,8 @@ public class GameManager : MonoBehaviour
                 StartCoroutine(Scale());
                 m_charactersToMerge[1].gameObject.GetComponent<Animator>().SetBool("isMoving", true);
                 m_charactersToMerge[0].gameObject.GetComponent<Animator>().SetBool("isMoving", true);
-                m_charactersToMerge[1].gameObject.GetComponent<Rigidbody>().MovePosition(Vector3.Lerp(m_matchedBoardCharacters[1].transform.position, m_matchedBoardCharacters[0].transform.position, 3 * Time.deltaTime));
-                m_charactersToMerge[0].gameObject.GetComponent<Rigidbody>().MovePosition(Vector3.Lerp(m_matchedBoardCharacters[0].transform.position, m_matchedBoardCharacters[1].transform.position, 3 * Time.deltaTime));
+                m_charactersToMerge[1].gameObject.GetComponent<Rigidbody>().MovePosition(Vector3.Lerp(m_matchedBoardCharacters[1].transform.position, m_matchedBoardCharacters[0].transform.position, 2 * Time.deltaTime));
+                m_charactersToMerge[0].gameObject.GetComponent<Rigidbody>().MovePosition(Vector3.Lerp(m_matchedBoardCharacters[0].transform.position, m_matchedBoardCharacters[1].transform.position, 2 * Time.deltaTime));
                 //yield return new WaitForSeconds(0.03f);
                 yield return new WaitForSeconds(0.5f);
                 m_charactersToMerge[1].gameObject.GetComponent<Animator>().SetBool("isMoving", false);
@@ -304,7 +311,7 @@ public class GameManager : MonoBehaviour
                     case true:
                         m_charactersToMerge[1].gameObject.GetComponent<Animator>().SetBool("isMoving", true);
                         m_charactersToMerge[1].gameObject.transform.LookAt(m_playerSide[0].transform);
-                        yield return new WaitForSeconds(1f);
+                        yield return new WaitForSeconds(0.8f);
                         m_charactersToMerge[1].gameObject.GetComponent<Rigidbody>().MoveRotation(Quaternion.Lerp(Quaternion.Euler(m_charactersToMerge[1].transform.eulerAngles), Quaternion.Euler(0, 0, 0), 1));
                         m_charactersToMerge[1].gameObject.GetComponent<Animator>().SetBool("isMoving", false);
                         break;
@@ -317,7 +324,7 @@ public class GameManager : MonoBehaviour
                     case true:
                         m_charactersToMerge[1].gameObject.GetComponent<Animator>().SetBool("isMoving", true);
                         m_charactersToMerge[1].gameObject.transform.LookAt(m_enemySide[0].transform);
-                        yield return new WaitForSeconds(1f);
+                        yield return new WaitForSeconds(0.8f);
                         m_charactersToMerge[1].gameObject.GetComponent<Rigidbody>().MoveRotation(Quaternion.Lerp(Quaternion.Euler(m_charactersToMerge[1].transform.eulerAngles),Quaternion.Euler(0, 180, 0),1));
                         m_charactersToMerge[1].gameObject.GetComponent<Animator>().SetBool("isMoving", false);
                         break;
@@ -336,5 +343,11 @@ public class GameManager : MonoBehaviour
             case false:
                 break;
         }
+    }
+
+    IEnumerator ExecuteAfterTime(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        StartCoroutine(MergeCoroutine());
     }
 }
